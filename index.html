@@ -7,375 +7,372 @@
 <meta name="description" content="Una página hecha a mano para Ale.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..500;1,6..72,200..500&family=Archivo:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* ── tokens ─────────────────────────────────────────────── */
+/* ═══ tokens ═══════════════════════════════════════════════
+   El oro vive SOLO dentro de las flores. Todo el texto y la
+   interfaz son tinta sobre papel. Así el girasol es lo único
+   que tiene color, y por eso resalta.
+   ═════════════════════════════════════════════════════════ */
 :root{
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:env(safe-area-inset-bottom,0px);
 
-  /* cielo: lo interpola el JS conforme avanza el día */
-  --sky-top:#FFF3D8;
-  --sky-bot:#FFE6AE;
-  --sun:#FFD166;
-  --sun-x:50%;
-  --sun-y:14%;
+  /* papel y tinta */
+  --paper:#EAE8DE;
+  --paper-2:#F5F4EE;
+  --ink:#1B1E17;
+  --ink-2:#5E6356;
+  --rule:rgba(27,30,23,.16);
+  --rule-soft:rgba(27,30,23,.09);
 
-  /* tinta y papel */
-  --ink:#2C1D09;
-  --ink-soft:#6B5326;
-  --paper:#FFFCF2;
-  --line:#E4CC90;
-  --honey:#D89A08;
-  --deep:#93600A;
-  --leaf:#4E6B2F;
-  --leaf-dark:#2F4A1E;
-  --seed:#4A2F0C;
+  /* la flor (no se usa en texto ni en UI) */
+  --petal-1:#E8B52C; --petal-2:#F7DA84;
+  --petal-b1:#BF8C11; --petal-b2:#DFA81D;
+  --leaf:#5F7343; --leaf-dark:#3C4A2A;
 
-  /* dirección de sombra: se invierte cuando el sol cruza */
+  /* luz del sol, la calcula el JS al hacer scroll */
+  --sun-x:14%; --sun-y:74%;
+  --glow:.42;
   --sh-x:0px;
 
-  --measure:34rem;
-  --serif:"Fraunces","Iowan Old Style",Georgia,"Times New Roman",serif;
-  --hand:"Caveat","Segoe Script","Bradley Hand",cursive;
+  --display:"Newsreader",Georgia,"Times New Roman",serif;
+  --ui:"Archivo",system-ui,-apple-system,sans-serif;
+
+  --gutter:clamp(1.4rem,6vw,5.5rem);
+  --col:min(38rem,88vw);
 }
-:root:not([data-theme="light"]){
-  color-scheme:light;
-}
+:root:not([data-theme="light"]){color-scheme:light}
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
     color-scheme:dark;
-    --ink:#FBEFD6;
-    --ink-soft:#CDB588;
-    --paper:#2A1D0C;
-    --line:#5C431C;
-    --honey:#FFC542;
-    --deep:#FFD98A;
+    --paper:#131510; --paper-2:#1C1F17;
+    --ink:#E7E5D9; --ink-2:#9AA08D;
+    --rule:rgba(231,229,217,.18); --rule-soft:rgba(231,229,217,.10);
   }
 }
 :root[data-theme="dark"]{
   color-scheme:dark;
-  --ink:#FBEFD6; --ink-soft:#CDB588; --paper:#2A1D0C; --line:#5C431C;
-  --honey:#FFC542; --deep:#FFD98A;
-}
-*,*::before,*::after{box-sizing:inherit}
-html{scroll-behavior:smooth;scroll-padding-top:env(safe-area-inset-top,0px)}
-body{
-  margin:0;
-  font-family:var(--serif);
-  font-optical-sizing:auto;
-  color:var(--ink);
-  background:var(--sky-bot);
-  overflow-x:hidden;
-  -webkit-font-smoothing:antialiased;
-  text-rendering:optimizeLegibility;
+  --paper:#131510; --paper-2:#1C1F17;
+  --ink:#E7E5D9; --ink-2:#9AA08D;
+  --rule:rgba(231,229,217,.18); --rule-soft:rgba(231,229,217,.10);
 }
 
-/* cielo fijo + halo del sol */
-#sky{
-  position:fixed;inset:0;z-index:-2;pointer-events:none;
-  background:
-    radial-gradient(60vmax 60vmax at var(--sun-x) var(--sun-y),
-      color-mix(in srgb, var(--sun) 62%, transparent) 0%,
-      color-mix(in srgb, var(--sun) 16%, transparent) 38%,
-      transparent 70%),
-    linear-gradient(180deg,var(--sky-top) 0%,var(--sky-bot) 100%);
-  transition:background 240ms linear;
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-behavior:smooth;scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+body{
+  margin:0;min-height:100%;
+  font-family:var(--display);
+  font-optical-sizing:auto;
+  font-size:1.0625rem;
+  color:var(--ink);
+  background:var(--paper);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  font-kerning:normal;
 }
-/* disco del sol */
+
+/* luz de fondo: un solo gradiente suave que sigue al sol */
+#sky{
+  position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(46vmax 40vmax at var(--sun-x) var(--sun-y),
+      rgba(232,181,44,calc(var(--glow) * .34)) 0%,
+      rgba(232,181,44,0) 64%),
+    linear-gradient(180deg,var(--paper) 0%,var(--paper) 100%);
+}
 #sky::after{
   content:"";position:absolute;
   left:var(--sun-x);top:var(--sun-y);
-  width:clamp(90px,16vmin,160px);aspect-ratio:1;
-  translate:-50% -50%;
-  border-radius:50%;
-  background:radial-gradient(circle at 42% 38%, #fff8e0, var(--sun) 62%, color-mix(in srgb,var(--sun) 40%,transparent) 100%);
-  filter:blur(6px);
-  opacity:.75;
+  width:clamp(64px,9vmin,104px);aspect-ratio:1;
+  translate:-50% -50%;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,244,214,.9),rgba(232,181,44,.35) 55%,rgba(232,181,44,0) 72%);
+  opacity:calc(var(--glow) * .8);
 }
-/* grano de papel */
-#grain{
-  position:fixed;inset:-10%;z-index:-1;pointer-events:none;opacity:.5;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='.22'/></svg>");
-  mix-blend-mode:multiply;
-}
-@media (prefers-color-scheme:dark){#grain{mix-blend-mode:screen;opacity:.22}}
 #pollen{position:fixed;inset:0;z-index:0;pointer-events:none}
-
-/* ── tipografía base ────────────────────────────────────── */
-h1,h2,h3{margin:0;font-weight:500;font-variation-settings:"SOFT" 40,"WONK" 1;line-height:1.02;letter-spacing:-.02em}
-p{margin:0 0 1.1em}
-.measure{max-width:var(--measure)}
-.lede{font-size:clamp(1.08rem,1rem + .6vw,1.3rem);line-height:1.72;color:var(--ink-soft)}
-.hand{font-family:var(--hand);font-size:1.35rem;color:var(--deep);line-height:1.35}
 main{position:relative;z-index:1}
-section{position:relative;padding:clamp(5rem,14vh,9rem) clamp(1.35rem,6vw,4rem)}
 
-/* ── 1. amanecer ────────────────────────────────────────── */
+/* ═══ tipografía ═══════════════════════════════════════════ */
+h1,h2{margin:0;font-weight:300;line-height:1.04;letter-spacing:-.018em}
+p{margin:0 0 1.15em}
+.lede{
+  font-size:clamp(1.06rem,1rem + .45vw,1.28rem);
+  line-height:1.72;color:var(--ink-2);max-width:31rem;font-weight:300;
+}
+.hint{font-family:var(--ui);font-size:.8125rem;color:var(--ink-2);letter-spacing:.012em;margin:0}
+
+section{padding:clamp(6rem,15vh,10rem) var(--gutter)}
+.block{max-width:64rem}
+.block h2{
+  font-size:clamp(1.85rem,1.3rem + 2.3vw,3rem);
+  max-width:17ch;
+}
+.block .lede{margin-top:1.1rem}
+
+/* ═══ 1. el campo ══════════════════════════════════════════ */
 .dawn{
   min-height:calc(100svh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));
   display:grid;grid-template-rows:1fr auto;align-items:end;
-  padding-bottom:0;overflow:hidden;
+  padding:0 0 0 0;
 }
-.dawn-copy{max-width:min(46rem,92vw);margin:0 auto;text-align:center;padding-bottom:clamp(1rem,4vh,3rem)}
-.dawn h1{
-  font-size:clamp(5.5rem,30vw,17rem);
-  font-weight:300;font-variation-settings:"SOFT" 60,"WONK" 1;
-  letter-spacing:-.05em;color:var(--deep);
-  line-height:.82;
-  opacity:0;filter:blur(14px);transform:translateY(.22em);
-  animation:rise 1.9s cubic-bezier(.16,.9,.3,1) .25s forwards;
+.dawn-inner{
+  padding:clamp(5rem,12vh,8rem) var(--gutter) clamp(1.2rem,4vh,2.4rem);
+  align-self:end;
 }
-.dawn h1 .a2{font-style:italic;font-variation-settings:"SOFT" 90,"WONK" 1}
-@keyframes rise{to{opacity:1;filter:blur(0);transform:none}}
-.dawn .lede{margin:1.4rem auto 0;max-width:30rem;opacity:0;animation:fadeIn 1.4s ease 1.1s forwards}
-.dawn .sig-note{margin-top:1.6rem;opacity:0;animation:fadeIn 1.4s ease 1.7s forwards}
-@keyframes fadeIn{to{opacity:1}}
+.name{
+  font-size:clamp(4.2rem,21vw,13rem);
+  font-weight:200;letter-spacing:-.025em;line-height:.92;
+  padding-right:.06em;
+  opacity:0;translate:0 .14em;
+  animation:enter 1.5s cubic-bezier(.16,.9,.3,1) .15s forwards;
+}
+.dawn .lede{margin:1.5rem 0 0;opacity:0;animation:enter 1.2s ease .75s forwards}
+.dawn .hint{margin-top:1.4rem;opacity:0;animation:enter 1.2s ease 1.25s forwards}
+@keyframes enter{to{opacity:1;translate:0 0}}
 
-.field{
-  position:relative;height:clamp(150px,26vh,260px);
-  margin:0 calc(-1 * clamp(1.35rem,6vw,4rem));
-}
-.stalk{position:absolute;bottom:-4px;transform-origin:50% 100%}
-.stalk .head{display:block;transform-origin:50% 88%;rotate:var(--turn,0deg);transition:rotate 600ms cubic-bezier(.2,.8,.2,1)}
-.stalk svg{display:block;width:100%;height:auto;filter:drop-shadow(calc(var(--sh-x) * .35) 6px 6px rgba(120,80,0,.16))}
+.field{position:relative;height:clamp(130px,23vh,230px);overflow:hidden}
+.stalk{position:absolute;bottom:-3px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.stalk svg{display:block;width:100%;height:auto}
+.stalk .head{transform-box:view-box;transform-origin:40px 62px}
 
-/* ── 2. floración ───────────────────────────────────────── */
-.bloom{padding:0;height:340svh}
-.bloom-stick{
+/* ═══ 2. la floración ══════════════════════════════════════ */
+.bloom{padding:0;height:300svh}
+.bloom-stage{
   position:sticky;top:0;
   height:calc(100svh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));
-  display:grid;grid-template-rows:auto 1fr;align-items:center;justify-items:center;
-  padding:clamp(1.5rem,5vh,3rem) 1.35rem 0;overflow:hidden;
+  display:grid;grid-template-rows:auto minmax(0,1fr);
+  align-content:center;justify-items:center;
+  padding:clamp(1.5rem,5vh,3rem) var(--gutter) clamp(1rem,3vh,2rem);
+  overflow:hidden;
 }
-.bloom-lines{position:relative;text-align:center;min-height:5.5em;width:min(34rem,92vw)}
+.bloom-lines{
+  position:relative;width:var(--col);
+  min-height:4.8em;margin-bottom:clamp(.5rem,2vh,1.4rem);
+}
 .bloom-lines p{
-  position:absolute;inset:0;margin:0;
-  font-size:clamp(1.5rem,1.1rem + 2.4vw,2.6rem);line-height:1.22;
-  color:var(--deep);opacity:0;transform:translateY(.35em);
-  transition:opacity .7s ease,transform .7s cubic-bezier(.2,.8,.2,1);
+  position:absolute;left:0;right:0;top:50%;margin:0;
+  font-size:clamp(1.42rem,1.05rem + 2.1vw,2.35rem);
+  line-height:1.26;font-weight:300;letter-spacing:-.014em;
+  opacity:0;translate:0 calc(-50% + .3em);
+  pointer-events:none;
+  transition:opacity .6s ease,translate .6s cubic-bezier(.2,.8,.2,1);
 }
-.bloom-lines p.on{opacity:1;transform:none}
-.bloom-lines em{font-style:italic;font-variation-settings:"SOFT" 90,"WONK" 1}
-#flower{width:min(78vmin,560px);height:auto;align-self:center;
-  filter:drop-shadow(calc(var(--sh-x) * .6) 18px 22px rgba(120,80,0,.18))}
+.bloom-lines p.on{opacity:1;translate:0 -50%}
+.bloom-lines em{font-style:italic}
+#flower{width:min(70vmin,480px);height:auto;align-self:center;justify-self:center}
 #flower .petal{transform-box:view-box;transform-origin:200px 168px}
 
-/* ── 3. herbario ────────────────────────────────────────── */
-.herb h2,.letter-sec h2,.gift h2{
-  font-size:clamp(2.1rem,1.4rem + 3.2vw,3.6rem);color:var(--deep);max-width:20ch;
-}
-.herb .lede{margin-top:1rem;max-width:32rem}
+/* ═══ 3. la lámina ═════════════════════════════════════════ */
 .plate{
-  margin-top:clamp(2.5rem,6vh,4rem);
-  display:grid;gap:clamp(1.1rem,3vw,2rem);
-  grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr));
-  max-width:64rem;
+  margin-top:clamp(2.6rem,7vh,4.5rem);
+  display:grid;gap:1px;background:var(--rule-soft);
+  border:1px solid var(--rule-soft);
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,16.5rem),1fr));
 }
 .spec{
-  position:relative;background:var(--paper);
-  border:1px solid var(--line);border-radius:2px;
-  padding:1.5rem 1.35rem 1.25rem;
-  rotate:var(--tilt,0deg);
-  box-shadow:calc(var(--sh-x) * .25) 10px 22px -12px rgba(110,74,0,.28);
-  transition:rotate .5s cubic-bezier(.2,.8,.2,1),translate .5s cubic-bezier(.2,.8,.2,1),box-shadow .5s ease;
+  background:var(--paper-2);
+  padding:clamp(1.5rem,3vw,2.1rem);
+  display:grid;align-content:start;
 }
-.spec::before{ /* cinta adhesiva */
-  content:"";position:absolute;top:-10px;left:50%;translate:-50% 0;
-  width:74px;height:22px;rotate:var(--tape,-2deg);
-  background:linear-gradient(180deg,rgba(255,231,160,.72),rgba(247,212,120,.55));
-  border-left:1px solid rgba(255,255,255,.5);border-right:1px solid rgba(190,150,60,.25);
+.spec .mark{display:block;width:30px;height:30px;margin-bottom:1.5rem;color:var(--ink-2)}
+.spec h3{
+  margin:0 0 .5rem;font-size:1.16rem;font-weight:400;
+  letter-spacing:-.01em;line-height:1.25;
 }
-.spec:hover,.spec:focus-within{rotate:0deg;translate:0 -5px;box-shadow:calc(var(--sh-x) * .3) 18px 30px -14px rgba(110,74,0,.34)}
-.spec .mark{display:block;width:44px;height:44px;margin-bottom:.9rem;color:var(--honey)}
-.spec h3{font-size:1.22rem;margin-bottom:.45rem;color:var(--ink);font-variation-settings:"SOFT" 30,"WONK" 1}
-.spec p{font-size:.97rem;line-height:1.62;color:var(--ink-soft);margin:0}
-.spec .latin{font-family:var(--hand);font-size:1.08rem;color:var(--honey);display:block;margin-top:.7rem}
+.spec p{margin:0;font-size:.97rem;line-height:1.7;color:var(--ink-2);font-weight:300}
+.spec .latin{
+  margin-top:1.1rem;padding-top:.8rem;border-top:1px solid var(--rule-soft);
+  font-style:italic;font-size:.9rem;color:var(--ink-2);letter-spacing:.005em;
+}
 
-/* ── 4. la carta ────────────────────────────────────────── */
-.letter-sec{display:grid;justify-items:center;text-align:center}
-.envelope{position:relative;margin-top:clamp(2rem,6vh,3.5rem);width:min(40rem,94vw)}
-.seal-wrap{display:grid;justify-items:center;gap:1rem;transition:opacity .5s ease,transform .6s ease}
+/* ═══ 4. la carta ══════════════════════════════════════════ */
+.envelope{margin-top:clamp(2.2rem,6vh,3.6rem);max-width:44rem}
+.seal-wrap{display:grid;justify-items:start;gap:1.1rem}
 .seal{
-  appearance:none;border:0;padding:0;cursor:pointer;background:none;
-  width:112px;height:112px;border-radius:50%;position:relative;
-  transition:transform .35s cubic-bezier(.2,.8,.2,1);
+  appearance:none;border:0;padding:0;background:none;cursor:pointer;
+  width:92px;height:92px;border-radius:50%;
+  transition:transform .4s cubic-bezier(.2,.8,.2,1);
 }
-.seal:hover{transform:scale(1.05) rotate(-4deg)}
-.seal:focus-visible{outline:2px solid var(--deep);outline-offset:6px;border-radius:50%}
-.seal svg{width:100%;height:100%;filter:drop-shadow(calc(var(--sh-x) * .3) 7px 8px rgba(120,40,20,.3))}
-.seal-hint{font-family:var(--hand);font-size:1.25rem;color:var(--ink-soft)}
-.opened .seal-wrap{opacity:0;transform:scale(.55) rotate(16deg);pointer-events:none;position:absolute;inset:0}
+.seal:hover{transform:rotate(-8deg)}
+.seal:focus-visible{outline:2px solid var(--ink);outline-offset:8px}
+.seal svg{width:100%;height:100%;display:block}
+.seal-hint{font-family:var(--ui);font-size:.8125rem;color:var(--ink-2)}
+.opened .seal-wrap{display:none}
 
 .sheet{
-  background:var(--paper);border:1px solid var(--line);
-  padding:clamp(1.8rem,5vw,3.4rem);text-align:left;
-  box-shadow:calc(var(--sh-x) * .35) 24px 50px -28px rgba(110,74,0,.4);
-  max-height:0;opacity:0;overflow:hidden;
-  transform:translateY(24px) rotateX(24deg);transform-origin:top center;
-  transition:max-height .95s cubic-bezier(.2,.9,.25,1),opacity .6s ease .2s,transform .95s cubic-bezier(.2,.9,.25,1);
+  background:var(--paper-2);border:1px solid var(--rule-soft);
+  padding:clamp(1.8rem,5vw,3.2rem);
+  max-height:0;opacity:0;overflow:hidden;border-width:0;
+  transition:max-height .9s cubic-bezier(.2,.9,.25,1),opacity .55s ease .18s;
 }
-.opened .sheet{max-height:210svh;opacity:1;transform:none}
-.sheet p{font-size:clamp(1.02rem,.98rem + .35vw,1.16rem);line-height:1.85;max-width:38rem}
-.sheet .salute{font-size:1.5rem;color:var(--deep);margin-bottom:1.2rem}
-.sheet .name{color:var(--deep);font-style:italic;font-variation-settings:"SOFT" 90,"WONK" 1}
-.sign{font-family:var(--hand);font-size:2.1rem;color:var(--deep);text-align:right;margin-top:1.8rem;line-height:1.1}
-.sign small{display:block;font-family:var(--serif);font-size:.82rem;color:var(--ink-soft);letter-spacing:.02em;margin-bottom:.2rem}
-
-.pd{margin-top:2.2rem;border-top:1px dashed var(--line);padding-top:1.4rem}
+.opened .sheet{max-height:240svh;opacity:1;border-width:1px}
+.sheet p{font-size:1.0625rem;line-height:1.8;max-width:38rem;font-weight:300;color:var(--ink-2)}
+.sheet .salute{font-size:1.35rem;color:var(--ink);margin-bottom:1.3rem;font-weight:400}
+.sheet .name-in{color:var(--ink);font-style:italic}
+.sign{margin:2rem 0 0;font-size:1.6rem;font-style:italic;font-weight:300;color:var(--ink)}
+.sign small{
+  display:block;font-family:var(--ui);font-style:normal;
+  font-size:.75rem;color:var(--ink-2);letter-spacing:.04em;margin-bottom:.35rem;
+}
+.pd{margin-top:2.2rem;border-top:1px solid var(--rule-soft);padding-top:1.3rem}
 .pd summary{
-  list-style:none;cursor:pointer;font-family:var(--hand);font-size:1.4rem;color:var(--honey);
-  display:inline-flex;align-items:center;gap:.5rem;
+  list-style:none;cursor:pointer;font-family:var(--ui);font-size:.8125rem;
+  color:var(--ink);display:inline-flex;align-items:center;gap:.6rem;letter-spacing:.012em;
 }
 .pd summary::-webkit-details-marker{display:none}
-.pd summary::after{content:"";width:9px;height:9px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;rotate:45deg;translate:0 -3px;transition:rotate .3s ease}
+.pd summary::after{
+  content:"";width:7px;height:7px;
+  border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;
+  rotate:45deg;translate:0 -2px;transition:rotate .3s ease;
+}
 .pd[open] summary::after{rotate:-135deg;translate:0 2px}
-.pd summary:focus-visible{outline:2px solid var(--deep);outline-offset:4px}
-.pd-body{margin-top:.9rem;font-size:1.08rem;line-height:1.8;color:var(--ink-soft);max-width:34rem;
-  animation:unfold .6s cubic-bezier(.2,.8,.2,1)}
-@keyframes unfold{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.pd summary:focus-visible{outline:2px solid var(--ink);outline-offset:5px}
+.pd-body{
+  margin-top:1rem;font-size:1.0125rem;line-height:1.78;
+  color:var(--ink-2);max-width:34rem;font-weight:300;
+}
 
-/* ── 5. atardecer / regalo ──────────────────────────────── */
-.gift{text-align:center;display:grid;justify-items:center;padding-bottom:0}
-.gift .lede{margin-top:1rem;max-width:28rem}
+/* ═══ 5. el jardín ═════════════════════════════════════════ */
+.gift{padding-bottom:0}
 .plant{
-  appearance:none;margin-top:1.8rem;cursor:pointer;
-  font-family:var(--serif);font-size:1.02rem;letter-spacing:.01em;
-  color:var(--paper);background:var(--deep);
-  border:0;border-radius:999px;padding:.85rem 1.7rem;
-  box-shadow:calc(var(--sh-x) * .2) 8px 18px -8px rgba(110,74,0,.5);
-  transition:transform .2s cubic-bezier(.2,.8,.2,1),background .3s ease;
+  appearance:none;margin-top:1.9rem;cursor:pointer;
+  font-family:var(--ui);font-size:.875rem;letter-spacing:.012em;
+  color:var(--paper-2);background:var(--ink);
+  border:0;border-radius:2px;padding:.82rem 1.5rem;
+  transition:opacity .25s ease,transform .25s cubic-bezier(.2,.8,.2,1);
 }
-.plant:hover{transform:translateY(-2px)}
-.plant:active{transform:translateY(1px) scale(.98)}
-.plant:focus-visible{outline:2px solid var(--deep);outline-offset:4px}
-.count{margin-top:.9rem;min-height:1.6em;font-family:var(--hand);font-size:1.3rem;color:var(--ink-soft)}
+.plant:hover{opacity:.86}
+.plant:active{transform:translateY(1px)}
+.plant:focus-visible{outline:2px solid var(--ink);outline-offset:4px}
+.count{
+  margin:1rem 0 0;min-height:1.5em;
+  font-family:var(--ui);font-size:.8125rem;color:var(--ink-2);
+}
 .garden{
-  position:relative;width:100%;max-width:70rem;height:clamp(170px,30vh,300px);margin-top:.5rem;
+  position:relative;width:100%;height:clamp(150px,27vh,260px);
+  margin-top:clamp(1.5rem,4vh,2.5rem);overflow:hidden;
 }
-.garden .grown{position:absolute;bottom:0;transform-origin:50% 100%;
-  animation:grow .9s cubic-bezier(.18,.9,.3,1) forwards;
-  filter:drop-shadow(calc(var(--sh-x) * .3) 5px 5px rgba(120,80,0,.18))}
-@keyframes grow{from{transform:scale(.1) translateY(14px);opacity:0}to{transform:scale(1);opacity:1}}
+.garden .grown{
+  position:absolute;bottom:-3px;transform-origin:50% 100%;
+  animation:sprout .85s cubic-bezier(.18,.9,.3,1) forwards;
+}
+.garden .grown svg{display:block;width:100%;height:auto}
+@keyframes sprout{from{transform:scale(.06);opacity:0}to{transform:scale(1);opacity:1}}
 
 footer{
-  text-align:center;padding:2rem 1.35rem calc(3.5rem + env(safe-area-inset-bottom,0px));
-  font-family:var(--hand);font-size:1.25rem;color:var(--ink-soft);
+  padding:2.5rem var(--gutter) calc(3.5rem + env(safe-area-inset-bottom,0px));
+  border-top:1px solid var(--rule-soft);
+  font-family:var(--ui);font-size:.75rem;letter-spacing:.04em;color:var(--ink-2);
 }
-
-/* revelados al entrar (uno por sección, no por elemento) */
-.reveal{opacity:0;transform:translateY(22px);transition:opacity .9s ease,transform .9s cubic-bezier(.2,.8,.2,1)}
-.reveal.in{opacity:1;transform:none}
 
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
-  *,*::before,*::after{animation-duration:.001ms!important;animation-delay:0ms!important;transition-duration:.001ms!important}
-  .reveal{opacity:1;transform:none}
-  .dawn h1{opacity:1;filter:none;transform:none}
-  .dawn .lede,.dawn .sig-note{opacity:1}
+  *,*::before,*::after{
+    animation-duration:.001ms!important;animation-delay:0ms!important;
+    transition-duration:.001ms!important;
+  }
+  .name,.dawn .lede,.dawn .hint{opacity:1;translate:0 0}
 }
 </style>
 </head>
 <body>
 <div id="sky"></div>
-<div id="grain"></div>
 <canvas id="pollen" aria-hidden="true"></canvas>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
-    <!-- girasol pequeño reutilizable: tallo + cabeza -->
-    <symbol id="mini" viewBox="0 0 80 200">
-      <path d="M40 200 C 36 150, 44 110, 40 62" stroke="var(--leaf)" stroke-width="5" fill="none" stroke-linecap="round"/>
-      <path d="M40 140 C 16 134, 8 118, 10 104 C 26 104, 38 118, 40 140 Z" fill="var(--leaf-dark)"/>
-      <path d="M40 116 C 62 112, 70 96, 68 82 C 52 84, 42 98, 40 116 Z" fill="var(--leaf)"/>
+    <!-- girasol chico reutilizable -->
+    <symbol id="mini" viewBox="0 0 80 220">
+      <path d="M40 220 C 36 168, 44 120, 40 62" stroke="var(--leaf)" stroke-width="4.2" fill="none" stroke-linecap="round"/>
+      <path d="M40 150 C 17 145, 9 128, 11 114 C 28 115, 38 129, 40 150 Z" fill="var(--leaf-dark)"/>
+      <path d="M40 124 C 63 119, 71 102, 69 88 C 52 90, 42 104, 40 124 Z" fill="var(--leaf)"/>
     </symbol>
-    <radialGradient id="disc" cx="38%" cy="34%">
-      <stop offset="0%" stop-color="#8A5C14"/>
-      <stop offset="55%" stop-color="#5A3A0B"/>
-      <stop offset="100%" stop-color="#3A2405"/>
+    <radialGradient id="discGrad" cx="38%" cy="34%">
+      <stop offset="0%" stop-color="#7A5512"/>
+      <stop offset="58%" stop-color="#4C340A"/>
+      <stop offset="100%" stop-color="#2A1C04"/>
     </radialGradient>
     <linearGradient id="pf" x1="0" y1="1" x2="0" y2="0">
-      <stop offset="0%" stop-color="#E9A308"/>
-      <stop offset="55%" stop-color="#FFC940"/>
-      <stop offset="100%" stop-color="#FFE38A"/>
+      <stop offset="0%" stop-color="#E8B52C"/>
+      <stop offset="100%" stop-color="#F7DA84"/>
     </linearGradient>
     <linearGradient id="pb" x1="0" y1="1" x2="0" y2="0">
-      <stop offset="0%" stop-color="#C07E04"/>
-      <stop offset="100%" stop-color="#EFAF1E"/>
+      <stop offset="0%" stop-color="#BF8C11"/>
+      <stop offset="100%" stop-color="#DFA81D"/>
     </linearGradient>
     <clipPath id="seedClip"><circle id="seedCircle" cx="200" cy="180" r="0"/></clipPath>
   </defs>
 </svg>
 
 <main>
-  <!-- 1 ─ amanecer -->
+  <!-- 1 ─ el campo -->
   <section class="dawn">
-    <div class="dawn-copy">
-      <h1>Al<span class="a2">e</span></h1>
+    <div class="dawn-inner">
+      <h1 class="name">Ale</h1>
       <p class="lede">Porque algunas personas llegan a tu vida y, sin darse cuenta, terminan convirtiéndose en una parte muy bonita de ella.</p>
-      <p class="hand sig-note">se voltean hacia ti — pruébalo, muévete por la pantalla</p>
+      <p class="hint" id="hint">Los girasoles siguen a la luz.</p>
     </div>
     <div class="field" id="field" aria-hidden="true"></div>
   </section>
 
-  <!-- 2 ─ floración -->
+  <!-- 2 ─ la floración -->
   <section class="bloom" id="bloom">
-    <div class="bloom-stick">
+    <div class="bloom-stage">
       <div class="bloom-lines" id="lines">
-        <p data-line="0">Hay algo que quiero que <em>florezca</em>.</p>
-        <p data-line="1">Y pensé que un girasol era la mejor manera de decirlo.</p>
-        <p data-line="2">Tú tardaste menos en hacerme el día.</p>
+        <p>Hay algo que quiero que <em>florezca</em>.</p>
+        <p>Y pensé que un girasol era la mejor manera de decirlo.</p>
+        <p>Tú tardaste menos en hacerme el día.</p>
       </div>
-      <svg id="flower" viewBox="0 0 400 600" role="img" aria-label="Un girasol que florece mientras bajas por la página">
-        <path id="stem" d="M200 600 C 196 500, 208 430, 200 300" stroke="var(--leaf)" stroke-width="13" fill="none" stroke-linecap="round"/>
+      <svg id="flower" viewBox="0 0 400 600" role="img" aria-label="Un girasol que florece conforme bajas por la página">
+        <path id="stem" d="M200 600 C 196 500, 208 430, 200 300" stroke="var(--leaf)" stroke-width="11" fill="none" stroke-linecap="round"/>
         <g id="leafL"><path d="M200 470 C 132 458, 104 414, 110 380 C 168 384, 194 424, 200 470 Z" fill="var(--leaf-dark)"/></g>
         <g id="leafR"><path d="M200 420 C 268 408, 296 364, 290 330 C 232 334, 206 374, 200 420 Z" fill="var(--leaf)"/></g>
         <g id="petalsBack"></g>
         <g id="petalsFront"></g>
-        <circle id="disc" cx="200" cy="180" r="0" fill="url(#disc)"/>
+        <circle id="discCircle" cx="200" cy="180" r="0" fill="url(#discGrad)"/>
         <g id="seeds" clip-path="url(#seedClip)"></g>
       </svg>
     </div>
   </section>
 
-  <!-- 3 ─ herbario -->
-  <section class="herb reveal">
+  <!-- 3 ─ la lámina -->
+  <section class="block herb">
     <h2>La señorita en cuestión, clasificada</h2>
     <p class="lede">Seis especímenes recolectados con mucho cariño y cero rigor científico. Ninguno de estos títulos está reconocido por institución alguna.</p>
     <div class="plate">
-      <article class="spec" style="--tilt:-1.2deg;--tape:-4deg" tabindex="0">
-        <svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><rect x="15" y="4" width="18" height="40" rx="4" stroke="currentColor" stroke-width="2.4"/><path d="M24 14v10l6 4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+      <article class="spec">
+        <svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle cx="24" cy="24" r="18" stroke="currentColor" stroke-width="1.6"/><path d="M24 13v11l7 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
         <h3>Señorita pierde rachas</h3>
         <p>Capaz de dejar morir una racha de meses y actuar después como si nada hubiera pasado.</p>
         <span class="latin">Racha extincta</span>
       </article>
-      <article class="spec" style="--tilt:1.6deg;--tape:3deg" tabindex="0">
-        <svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><rect x="5" y="13" width="38" height="26" rx="5" stroke="currentColor" stroke-width="2.4"/><circle cx="24" cy="26" r="7" stroke="currentColor" stroke-width="2.4"/><path d="M17 13l3-5h8l3 5" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></svg>
+      <article class="spec">
+        <svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><rect x="5" y="13" width="38" height="26" rx="3" stroke="currentColor" stroke-width="1.6"/><circle cx="24" cy="26" r="7.5" stroke="currentColor" stroke-width="1.6"/><path d="M17 13l3-5h8l3 5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
         <h3>Juzgadora de fotos</h3>
         <p>Existe, al parecer, un comité especializado que determina cuáles fotos sí pasan el filtro. Ella es el comité completo.</p>
         <span class="latin">Comité unipersonalis</span>
       </article>
-      <article class="spec" style="--tilt:-2deg;--tape:2deg" tabindex="0">
-        <svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M24 40C24 40 7 30 7 19a9 9 0 0 1 17-4 9 9 0 0 1 17 4c0 11-17 21-17 21Z" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></svg>
+      <article class="spec">
+        <svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M24 40C24 40 7 30 7 19a9 9 0 0 1 17-4 9 9 0 0 1 17 4c0 11-17 21-17 21Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
         <h3>Deudora de besos</h3>
         <p>Una deuda pendiente que, curiosamente, nunca parece liquidarse. Qué conveniente.</p>
         <span class="latin">Saldo pendiente</span>
       </article>
-      <article class="spec" style="--tilt:1.1deg;--tape:-3deg" tabindex="0">
-        <svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><rect x="5" y="9" width="38" height="26" rx="4" stroke="currentColor" stroke-width="2.4"/><path d="M3 41h42M18 20l-5 4 5 4M30 20l5 4-5 4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <article class="spec">
+        <svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><rect x="5" y="9" width="38" height="26" rx="3" stroke="currentColor" stroke-width="1.6"/><path d="M4 41h40M18 20l-5 4 5 4M30 20l5 4-5 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <h3>Máquina de chambear</h3>
         <p>Cuando se trata de trabajar trae batería infinita. Respeto, pero también preocupación.</p>
-        <span class="latin">Bateria infinita</span>
+        <span class="latin">Batería infinita</span>
       </article>
-      <article class="spec" style="--tilt:-1.5deg;--tape:4deg" tabindex="0">
-        <svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle cx="24" cy="24" r="7" stroke="currentColor" stroke-width="2.4"/><path d="M24 3v8M24 37v8M3 24h8M37 24h8M9 9l6 6M33 33l6 6M39 9l-6 6M15 33l-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+      <article class="spec">
+        <svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle cx="24" cy="24" r="7" stroke="currentColor" stroke-width="1.6"/><path d="M24 4v7M24 37v7M4 24h7M37 24h7M9.8 9.8l5 5M33.2 33.2l5 5M38.2 9.8l-5 5M14.8 33.2l-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
         <h3>Especialista en alegrar días</h3>
         <p>De esas personas que quizá no se dan cuenta del efecto que tienen, pero dejan algo bonito después de hablar con ellas.</p>
         <span class="latin">Efecto secundario</span>
       </article>
-      <article class="spec" style="--tilt:2deg;--tape:-2deg" tabindex="0">
-        <svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle cx="24" cy="24" r="6" fill="currentColor"/><g stroke="currentColor" stroke-width="2.4"><path d="M24 4v8M24 36v8M4 24h8M36 24h8M10 10l6 6M32 32l6 6M38 10l-6 6M16 32l-6 6"/></g></svg>
+      <article class="spec">
+        <svg class="mark" viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle cx="24" cy="24" r="5" fill="currentColor"/><circle cx="24" cy="24" r="12.5" stroke="currentColor" stroke-width="1.6"/><circle cx="24" cy="24" r="19" stroke="currentColor" stroke-width="1.6" stroke-dasharray="2 5"/></svg>
         <h3>Y simplemente Ale</h3>
         <p>Porque al final de todos los títulos, eres tú. Y eso es justamente lo que hace especial todo esto.</p>
         <span class="latin">Helianthus Ale</span>
@@ -384,29 +381,26 @@ footer{
   </section>
 
   <!-- 4 ─ la carta -->
-  <section class="letter-sec reveal">
-    <h2 style="text-align:center">Y ya en serio, un momento</h2>
+  <section class="block letter-sec">
+    <h2>Y ya en serio, un momento</h2>
     <div class="envelope" id="envelope">
       <div class="seal-wrap">
         <button class="seal" id="seal" aria-controls="sheet" aria-expanded="false">
           <svg viewBox="0 0 120 120" aria-hidden="true">
-            <circle cx="60" cy="60" r="52" fill="#B5411F"/>
-            <circle cx="60" cy="60" r="52" fill="none" stroke="#8C2E13" stroke-width="3"/>
-            <circle cx="60" cy="60" r="42" fill="none" stroke="#D9613C" stroke-width="2" stroke-dasharray="5 7"/>
-            <g fill="#F6C9B4" opacity=".92">
-              <g id="sealPetals"></g>
-            </g>
-            <circle cx="60" cy="60" r="13" fill="#7E2A11"/>
+            <circle cx="60" cy="60" r="55" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".28"/>
+            <circle cx="60" cy="60" r="44" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".28" stroke-dasharray="2 6"/>
+            <g id="sealPetals" fill="currentColor" opacity=".9"></g>
+            <circle cx="60" cy="60" r="9" fill="currentColor"/>
           </svg>
         </button>
-        <span class="seal-hint">rompe el sello</span>
+        <span class="seal-hint">Abrir la carta</span>
       </div>
 
       <article class="sheet" id="sheet">
         <p class="salute">Ale,</p>
         <p>No sé exactamente en qué momento te convertiste en una de esas personas que uno quiere conservar cerca, pero pasó. Y creo que eso merece decirse en voz alta, aunque sea por escrito.</p>
         <p>Esta página no pretende ser algo enorme ni demasiado serio. Solo quería dejarte un detalle que tuviera un poquito de todo lo que eres: algo cursi, un poco de carrilla y mucho cariño.</p>
-        <p>Así que sí, oficialmente eres la <span class="name">señorita pierde rachas</span>, la <span class="name">juzgadora de fotos</span>, la <span class="name">deudora de besos</span> y la <span class="name">máquina de chambear</span>. Pero sobre todo, eres alguien a quien quiero muchísimo.</p>
+        <p>Así que sí, oficialmente eres la <span class="name-in">señorita pierde rachas</span>, la <span class="name-in">juzgadora de fotos</span>, la <span class="name-in">deudora de besos</span> y la <span class="name-in">máquina de chambear</span>. Pero sobre todo, eres alguien a quien quiero muchísimo.</p>
         <p>Y si algún día dudas de lo mucho que vales para mí, vuelve a esta página. Aquí quedó por escrito, y aquí se queda.</p>
         <p class="sign"><small>Con cariño,</small>Fabián</p>
         <details class="pd">
@@ -417,14 +411,14 @@ footer{
     </div>
   </section>
 
-  <!-- 5 ─ el regalo -->
-  <section class="gift reveal">
+  <!-- 5 ─ el jardín -->
+  <section class="block gift">
     <h2>Te debo una flor</h2>
     <p class="lede">Aquí va la primera. Y las que quieras después.</p>
     <button class="plant" id="plant">Plantar una flor</button>
     <p class="count" id="count" role="status"></p>
-    <div class="garden" id="garden" aria-hidden="true"></div>
   </section>
+  <div class="garden" id="garden" aria-hidden="true"></div>
 </main>
 
 <footer>Hecha a mano para Ale, con mucho cariño.</footer>
@@ -433,55 +427,25 @@ footer{
 (() => {
   "use strict";
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const SVGNS = "http://www.w3.org/2000/svg";
-  const el = (n, a) => { const e = document.createElementNS(SVGNS, n); for (const k in a) e.setAttribute(k, a[k]); return e; };
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (n, a) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); return e; };
   const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
   const lerp = (a, b, t) => a + (b - a) * t;
-
-  /* ── el día que avanza ────────────────────────────── */
-  const DAY_LIGHT = [
-    { p:0,    top:"#FFF4DA", bot:"#FFE3A6", sun:"#FFD166" },
-    { p:0.3,  top:"#FFFBF0", bot:"#FFEFC6", sun:"#FFC53D" },
-    { p:0.62, top:"#FFF6E2", bot:"#FFDFA6", sun:"#FFB020" },
-    { p:0.85, top:"#FFEDD6", bot:"#F8CB92", sun:"#F59237" },
-    { p:1,    top:"#FBDFC8", bot:"#EBB489", sun:"#E8703C" }
-  ];
-  const DAY_DARK = [
-    { p:0,    top:"#241A0C", bot:"#332209", sun:"#C98A1E" },
-    { p:0.3,  top:"#2A1E0D", bot:"#3B2A0C", sun:"#E0A32B" },
-    { p:0.62, top:"#2E200E", bot:"#402C0D", sun:"#E9A72A" },
-    { p:0.85, top:"#2B1A0D", bot:"#45240F", sun:"#D9702F" },
-    { p:1,    top:"#20130A", bot:"#33170C", sun:"#C4542B" }
-  ];
-  const hex = h => [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)];
-  const mix = (a, b, t) => { const A = hex(a), B = hex(b);
-    return `rgb(${Math.round(lerp(A[0],B[0],t))} ${Math.round(lerp(A[1],B[1],t))} ${Math.round(lerp(A[2],B[2],t))})`; };
-
-  let stops = DAY_LIGHT;
-  const dark = matchMedia("(prefers-color-scheme: dark)");
-  const pickTheme = () => { stops = (document.documentElement.dataset.theme === "light") ? DAY_LIGHT
-      : (dark.matches || document.documentElement.dataset.theme === "dark") ? DAY_DARK : DAY_LIGHT; };
-  pickTheme();
-  dark.addEventListener("change", () => { pickTheme(); onScroll(true); });
-
   const root = document.documentElement.style;
-  function paintSky(p) {
-    let i = 0; while (i < stops.length - 2 && p > stops[i + 1].p) i++;
-    const a = stops[i], b = stops[i + 1];
-    const t = clamp((p - a.p) / (b.p - a.p), 0, 1);
-    root.setProperty("--sky-top", mix(a.top, b.top, t));
-    root.setProperty("--sky-bot", mix(a.bot, b.bot, t));
-    root.setProperty("--sun", mix(a.sun, b.sun, t));
-    // el sol cruza el cielo: sale por la izquierda, se pone por la derecha
-    const sx = lerp(14, 88, p), sy = lerp(78, 20, Math.min(p * 1.6, 1)) - Math.sin(p * Math.PI) * 14;
-    root.setProperty("--sun-x", sx + "%");
-    root.setProperty("--sun-y", clamp(sy, 6, 86) + "%");
-    root.setProperty("--sh-x", (sx - 50) * -0.36 + "px");
-    sun.x = sx; sun.y = clamp(sy, 6, 86);
-  }
-  const sun = { x: 14, y: 78 };
 
-  /* ── girasol grande ───────────────────────────────── */
+  /* ── el sol recorre el cielo conforme bajas ─────────────── */
+  const sun = { x: 14, y: 74 };
+  function paintSky(p) {
+    const sx = lerp(12, 88, p);
+    const sy = 76 - Math.sin(p * Math.PI) * 52;   // arco: bajo → alto → bajo
+    sun.x = sx; sun.y = clamp(sy, 12, 84);
+    root.setProperty("--sun-x", sx.toFixed(2) + "%");
+    root.setProperty("--sun-y", sun.y.toFixed(2) + "%");
+    root.setProperty("--glow", (0.3 + 0.45 * Math.sin(p * Math.PI)).toFixed(3));
+    root.setProperty("--sh-x", ((sx - 50) * -0.3).toFixed(2) + "px");
+  }
+
+  /* ── girasol grande ─────────────────────────────────────── */
   const CX = 200, CY = 180, N = 21;
   const PETAL = "M200 168 C 176 140, 172 72, 200 20 C 228 72, 224 140, 200 168 Z";
   function ring(host, grad, cls, offset, scale) {
@@ -493,30 +457,27 @@ footer{
       g.appendChild(p); host.appendChild(g);
     }
   }
-  const back = document.getElementById("petalsBack");
-  const front = document.getElementById("petalsFront");
-  ring(back, "pb", "petal back", 360 / N / 2, 1.14);
-  ring(front, "pf", "petal front", 0, 1);
+  ring(document.getElementById("petalsBack"), "pb", "petal back", 360 / N / 2, 1.14);
+  ring(document.getElementById("petalsFront"), "pf", "petal front", 0, 1);
 
   const seeds = document.getElementById("seeds");
   const GOLD = Math.PI * (3 - Math.sqrt(5));
   for (let i = 0; i < 340; i++) {
     const r = 3.05 * Math.sqrt(i);
     if (r > 50) break;
-    const a = i * GOLD;
-    const near = r / 50;
+    const a = i * GOLD, near = r / 50;
     seeds.appendChild(el("circle", {
       cx: (CX + Math.cos(a) * r).toFixed(2),
       cy: (CY + Math.sin(a) * r).toFixed(2),
-      r: (1.0 + near * 1.5).toFixed(2),
-      fill: near > 0.86 ? "#C68A17" : near > 0.6 ? "#5E3C0D" : "#3E2706",
+      r: (1.0 + near * 1.4).toFixed(2),
+      fill: near > 0.86 ? "#B07D12" : near > 0.6 ? "#4E3409" : "#2E1F05",
       opacity: (0.55 + near * 0.45).toFixed(2)
     }));
   }
-  // pétalos del sello de cera
+
   const sp = document.getElementById("sealPetals");
   for (let i = 0; i < 12; i++) {
-    sp.appendChild(el("ellipse", { cx: 60, cy: 32, rx: 6.5, ry: 15, transform: `rotate(${i * 30} 60 60)` }));
+    sp.appendChild(el("ellipse", { cx: 60, cy: 33, rx: 5, ry: 14, transform: `rotate(${i * 30} 60 60)` }));
   }
 
   const stem = document.getElementById("stem");
@@ -526,179 +487,243 @@ footer{
   leafL.style.transformBox = leafR.style.transformBox = "view-box";
   leafL.style.transformOrigin = "200px 470px";
   leafR.style.transformOrigin = "200px 420px";
-  const disc = document.getElementById("disc");
+  /* ARREGLO: antes este id chocaba con el del gradiente y el
+     centro del girasol nunca crecía. */
+  const disc = document.getElementById("discCircle");
   const seedCircle = document.getElementById("seedCircle");
   const bloomSec = document.getElementById("bloom");
   const lines = [...document.querySelectorAll("#lines p")];
   const petals = [...document.querySelectorAll("#flower .petal")];
 
   const ease = t => t < 0 ? 0 : t > 1 ? 1 : 1 - Math.pow(1 - t, 3);
+  let lastIdx = -1;
   function drawBloom(p) {
-    const stemP = ease(clamp(p / 0.34, 0, 1));
-    stem.style.strokeDashoffset = stemLen * (1 - stemP);
+    stem.style.strokeDashoffset = stemLen * (1 - ease(clamp(p / 0.34, 0, 1)));
     const lp = ease(clamp((p - 0.18) / 0.3, 0, 1));
-    leafL.style.transform = `scale(${lp}) rotate(${(1 - lp) * -25}deg)`;
-    leafR.style.transform = `scale(${ease(clamp((p - 0.26) / 0.3, 0, 1))})`;
+    leafL.style.transform = `scale(${lp.toFixed(3)}) rotate(${((1 - lp) * -22).toFixed(1)}deg)`;
+    leafR.style.transform = `scale(${ease(clamp((p - 0.26) / 0.3, 0, 1)).toFixed(3)})`;
     disc.setAttribute("r", (54 * ease(clamp((p - 0.3) / 0.25, 0, 1))).toFixed(1));
     petals.forEach(pt => {
       const i = +pt.style.getPropertyValue("--i");
-      const isBack = pt.classList.contains("back");
-      const start = (isBack ? 0.34 : 0.44) + (i / N) * 0.16;
+      const start = (pt.classList.contains("back") ? 0.34 : 0.44) + (i / N) * 0.16;
       const s = ease(clamp((p - start) / 0.2, 0, 1)) * (+pt.dataset.sc || 1);
-      pt.style.transform = `scale(${s.toFixed(3)}) rotate(${((1 - s) * 16).toFixed(1)}deg)`;
+      pt.style.transform = `scale(${s.toFixed(3)}) rotate(${((1 - s) * 14).toFixed(1)}deg)`;
     });
     seedCircle.setAttribute("r", (52 * ease(clamp((p - 0.62) / 0.3, 0, 1))).toFixed(1));
     const idx = p < 0.3 ? 0 : p < 0.72 ? 1 : 2;
-    lines.forEach((l, i) => l.classList.toggle("on", i === idx));
+    if (idx !== lastIdx) {
+      lastIdx = idx;
+      lines.forEach((l, i) => l.classList.toggle("on", i === idx));
+    }
   }
 
-  /* ── campo del hero: girasoles que te siguen ──────── */
+  /* ── el campo: girasoles que siguen la luz ──────────────── */
   const field = document.getElementById("field");
   const HEADS = [
-    { x: 4, s: 1.0 }, { x: 15, s: .72 }, { x: 26, s: 1.12 }, { x: 38, s: .64 },
-    { x: 50, s: .92 }, { x: 61, s: 1.18 }, { x: 72, s: .7 }, { x: 83, s: 1.0 }, { x: 93, s: .82 }
+    { x: 5, s: .74 }, { x: 16, s: 1.0 }, { x: 28, s: .62 }, { x: 39, s: 1.1 },
+    { x: 51, s: .70 }, { x: 62, s: 1.02 }, { x: 74, s: .64 }, { x: 86, s: .92 }
   ];
+  const HEAD_Y = 62 / 220;   // altura del cuello dentro del viewBox
+
+  function headSVG(tone, disc) {
+    return `<svg viewBox="0 0 80 220">
+      <use href="#mini"/>
+      <g class="head">
+        ${Array.from({ length: 16 }, (_, i) =>
+          `<ellipse cx="40" cy="41" rx="4.4" ry="13" transform="rotate(${(i * 22.5).toFixed(1)} 40 62)" fill="${tone}"/>`
+        ).join("")}
+        <circle cx="40" cy="62" r="11" fill="${disc}"/>
+      </g></svg>`;
+  }
+
   const stalks = HEADS.map(h => {
     const d = document.createElement("div");
     d.className = "stalk";
     d.style.left = h.x + "%";
-    d.style.width = (52 * h.s) + "px";
+    d.style.width = (54 * h.s) + "px";
     d.style.zIndex = Math.round(h.s * 10);
-    d.innerHTML = `<svg viewBox="0 0 80 200">
-      <use href="#mini"/>
-      <g class="head">
-        ${Array.from({ length: 14 }, (_, i) => `<ellipse cx="40" cy="36" rx="5.5" ry="15" transform="rotate(${i * 25.7} 40 62)" fill="${h.s > .9 ? '#F3B01C' : '#E8A417'}"/>`).join("")}
-        <circle cx="40" cy="62" r="13" fill="#4A2F0C"/>
-      </g></svg>`;
+    d.innerHTML = headSVG(h.s > .9 ? "#E8B52C" : "#D19E1B", "#3A2708");
     field.appendChild(d);
-    return d.querySelector(".head");
+    return { box: d, head: d.querySelector(".head"), cur: 0, vel: 0, px: 0, py: 0, ph: Math.random() * 6.28 };
   });
 
-  let target = null;
-  function aimHeads() {
-    const vw = innerWidth, vh = innerHeight;
-    const tx = target ? target.x : (sun.x / 100) * vw;
-    const ty = target ? target.y : (sun.y / 100) * vh;
-    stalks.forEach(head => {
-      const r = head.getBoundingClientRect();
-      if (r.width === 0) return;
-      const cx = r.left + r.width / 2, cy = r.top + r.height * 0.6;
-      const ang = Math.atan2(tx - cx, cy - ty) * 180 / Math.PI;
-      head.style.rotate = clamp(ang, -34, 34).toFixed(1) + "deg";
-    });
-  }
-  addEventListener("pointermove", e => { target = { x: e.clientX, y: e.clientY }; queue(); }, { passive: true });
-  addEventListener("pointerleave", () => { target = null; queue(); });
+  /* ARREGLOS clave, contra el "trabado":
+     1. El pivote se mide sobre el <div> del tallo, que NO gira.
+        Antes se medía el <g> ya rotado y eso creaba un bucle.
+     2. Nada de transition en CSS: el ángulo se resuelve aquí,
+        cuadro por cuadro, con un resorte amortiguado.
+     3. transform-origin real en el cuello de la flor.          */
+  const SPRING = 0.075, DAMP = 0.86;
 
-  /* ── bucle de scroll ──────────────────────────────── */
-  let ticking = false;
-  function queue() { if (!ticking) { ticking = true; requestAnimationFrame(frame); } }
-  function frame() { ticking = false; onScroll(); }
-  function onScroll(force) {
-    const max = document.body.scrollHeight - innerHeight;
+  function updateHeads(t) {
+    const fr = field.getBoundingClientRect();
+    if (fr.bottom < -80 || fr.top > innerHeight + 80) return;   // fuera de pantalla, no calcula
+
+    const sx = (sun.x / 100) * innerWidth;
+    const sy = (sun.y / 100) * innerHeight;
+
+    for (const s of stalks) {
+      const r = s.box.getBoundingClientRect();
+      if (!r.width) continue;
+      s.px = r.left + r.width / 2;
+      s.py = r.top + r.height * HEAD_Y;
+
+      // posición de reposo: mirando al sol, con un vaivén leve
+      const rest = clamp(Math.atan2(sx - s.px, s.py - sy) * 180 / Math.PI, -30, 30)
+                 + (reduce ? 0 : Math.sin(t / 2100 + s.ph) * 1.8);
+
+      if (reduce) {
+        s.cur = rest;
+      } else {
+        s.vel += (rest - s.cur) * SPRING;   // el resorte la jala de vuelta
+        s.vel *= DAMP;                      // la fricción la va calmando
+        s.cur = clamp(s.cur + s.vel, -48, 48);
+      }
+      s.head.style.rotate = s.cur.toFixed(2) + "deg";
+    }
+  }
+
+  /* al tocarlas: la que tocas se va de golpe hacia el dedo y
+     rebota; las de junto se contagian según qué tan cerca estén */
+  field.addEventListener("pointerdown", e => {
+    const hit = e.target.closest(".stalk");
+    const tx = e.clientX, ty = e.clientY;
+
+    for (const s of stalks) {
+      if (!s.py) continue;
+      const ang = clamp(Math.atan2(tx - s.px, s.py - ty) * 180 / Math.PI, -42, 42);
+      const power = (s.box === hit) ? 0.45 : Math.max(0, 0.2 - Math.abs(tx - s.px) / 1300);
+      if (power > 0.005) s.vel += (ang - s.cur) * power;
+    }
+
+    if (hit) {
+      const s = stalks.find(v => v.box === hit);
+      burst({ left: s.px, top: s.py, width: 0, height: 0 }, "#E8B52C");
+    }
+  }, { passive: true });
+
+  const hint = document.getElementById("hint");
+  hint.textContent = matchMedia("(hover: hover) and (pointer: fine)").matches
+    ? "Haz clic en los girasoles."
+    : "Toca los girasoles.";
+
+  /* ── scroll ─────────────────────────────────────────────── */
+  function onScroll() {
+    const max = document.documentElement.scrollHeight - innerHeight;
     paintSky(clamp(max > 0 ? scrollY / max : 0, 0, 1));
     const r = bloomSec.getBoundingClientRect();
     const span = r.height - innerHeight;
     drawBloom(clamp(span > 0 ? -r.top / span : 0, 0, 1));
-    aimHeads();
   }
-  addEventListener("scroll", queue, { passive: true });
-  addEventListener("resize", queue);
-  onScroll(true);
+  addEventListener("scroll", onScroll, { passive: true });
+  addEventListener("resize", onScroll);
+  onScroll();
 
-  /* ── revelados por sección ────────────────────────── */
-  const io = new IntersectionObserver(es => es.forEach(e => {
-    if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
-  }), { threshold: 0.12 });
-  document.querySelectorAll(".reveal").forEach(n => io.observe(n));
-
-  /* ── el sello ─────────────────────────────────────── */
+  /* ── el sello ───────────────────────────────────────────── */
   const seal = document.getElementById("seal");
   seal.addEventListener("click", () => {
     document.getElementById("envelope").classList.add("opened");
     seal.setAttribute("aria-expanded", "true");
     burst(seal.getBoundingClientRect());
-    setTimeout(queue, 1000);
+    setTimeout(onScroll, 950);
   });
 
-  /* ── plantar flores ───────────────────────────────── */
+  /* ── plantar flores ─────────────────────────────────────── */
   const garden = document.getElementById("garden");
   const count = document.getElementById("count");
   const NOTES = ["Ahí está la que te debía.", "Dos. Ya se está viendo bien.", "Esto ya parece jardín.",
                  "Se te está llenando la pantalla.", "Ya es un campo entero.", "Sigues plantando. Me gusta."];
+  const TONES = ["#E8B52C", "#F2C84A", "#D19E1B"];
   let n = 0;
   document.getElementById("plant").addEventListener("click", () => {
     if (n >= 34) { count.textContent = "Ya no cabe una más. Quédate con todas."; return; }
     n++;
-    const s = 0.55 + Math.random() * 0.7;
+    const s = 0.55 + Math.random() * 0.65;
+    const w = 46 * s;
     const d = document.createElement("div");
     d.className = "grown";
-    d.style.left = (2 + Math.random() * 94) + "%";
-    d.style.width = (46 * s) + "px";
+    d.style.width = w + "px";
+    d.style.left = `calc(${(3 + Math.random() * 94).toFixed(2)}% - ${w / 2}px)`;
     d.style.zIndex = Math.round(s * 20);
-    d.style.animationDelay = "0ms";
-    const tone = ["#F3B01C", "#FFC845", "#E79C10"][n % 3];
-    d.innerHTML = `<svg viewBox="0 0 80 200">
-      <use href="#mini"/>
-      ${Array.from({ length: 14 }, (_, i) => `<ellipse cx="40" cy="36" rx="5.5" ry="15" transform="rotate(${i * 25.7} 40 62)" fill="${tone}"/>`).join("")}
-      <circle cx="40" cy="62" r="13" fill="#4A2F0C"/></svg>`;
+    const tone = TONES[n % 3];
+    d.innerHTML = headSVG(tone, "#3A2708");
     garden.appendChild(d);
     count.textContent = NOTES[Math.min(n - 1, NOTES.length - 1)] + (n > 3 ? ` (${n})` : "");
-    burst(d.getBoundingClientRect(), tone);
+
+    // El rect del elemento aún está escalado a .06 por la animación,
+    // así que el punto del estallido se calcula por layout, no por transform.
+    const g = garden.getBoundingClientRect();
+    const px = g.left + d.offsetLeft + d.offsetWidth / 2;
+    const py = g.bottom - d.offsetHeight * (1 - HEAD_Y);
+    burst({ left: px, top: py, width: 0, height: 0 }, tone);
   });
 
-  /* ── polen ────────────────────────────────────────── */
+  /* ── polen + bucle único ────────────────────────────────── */
   const cv = document.getElementById("pollen");
   const ctx = cv.getContext("2d");
-  let W = 0, H = 0, motes = [], extra = [];
+  let W = 0, H = 0, motes = [], extra = [], rafId = 0;
+
   function size() {
     const dpr = Math.min(devicePixelRatio || 1, 2);
-    W = innerWidth; H = innerHeight;
+    const nw = innerWidth, nh = innerHeight;
+    const rebuild = Math.abs(nw - W) > 40 || !motes.length;   // ignora el vaivén de la barra del navegador
+    W = nw; H = nh;
     cv.width = W * dpr; cv.height = H * dpr;
     cv.style.width = W + "px"; cv.style.height = H + "px";
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const want = W < 620 ? 26 : 46;
-    motes = Array.from({ length: want }, () => ({
-      x: Math.random() * W, y: Math.random() * H,
-      r: 0.8 + Math.random() * 2.2, v: 0.1 + Math.random() * 0.35,
-      a: Math.random() * Math.PI * 2, o: 0.14 + Math.random() * 0.4
-    }));
+    if (rebuild) {
+      const want = W < 620 ? 20 : 34;
+      motes = Array.from({ length: want }, () => ({
+        x: Math.random() * W, y: Math.random() * H,
+        r: 0.7 + Math.random() * 1.8, v: 0.09 + Math.random() * 0.3,
+        a: Math.random() * 6.28, o: 0.1 + Math.random() * 0.26
+      }));
+    }
   }
   function burst(rect, tone) {
     if (reduce) return;
     const cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
-    for (let i = 0; i < 22; i++) {
-      const a = Math.random() * Math.PI * 2, sp = 1.4 + Math.random() * 3.6;
-      extra.push({ x: cx, y: cy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 1.2,
-                   r: 1 + Math.random() * 2.4, life: 1, tone: tone || "#F0B429" });
+    for (let i = 0; i < 20; i++) {
+      const a = Math.random() * 6.28, v = 1.3 + Math.random() * 3.2;
+      extra.push({ x: cx, y: cy, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 1.1,
+                   r: 1 + Math.random() * 2.1, life: 1, tone: tone || "#E8B52C" });
     }
   }
-  size(); addEventListener("resize", size);
-  let running = true;
-  document.addEventListener("visibilitychange", () => { running = !document.hidden; if (running) tick(); });
-  function tick() {
-    if (!running) return;
+  size();
+  addEventListener("resize", size);
+
+  /* Un solo requestAnimationFrame para todo. Antes el
+     visibilitychange arrancaba un segundo bucle y el polen
+     se iba al doble de velocidad al volver a la pestaña. */
+  function loop(t) {
+    rafId = 0;
+    updateHeads(t);
     ctx.clearRect(0, 0, W, H);
     if (!reduce) {
-      const t = performance.now() / 3400;
+      const w = t / 3400;
       for (const m of motes) {
-        m.a += 0.006; m.y -= m.v; m.x += Math.sin(m.a + t) * 0.42;
+        m.a += 0.006; m.y -= m.v; m.x += Math.sin(m.a + w) * 0.4;
         if (m.y < -8) { m.y = H + 8; m.x = Math.random() * W; }
         ctx.beginPath(); ctx.arc(m.x, m.y, m.r, 0, 6.2832);
-        ctx.fillStyle = `rgba(230,175,40,${m.o})`; ctx.fill();
+        ctx.fillStyle = `rgba(216,168,42,${m.o})`; ctx.fill();
       }
       for (let i = extra.length - 1; i >= 0; i--) {
         const p = extra[i];
-        p.x += p.vx; p.y += p.vy; p.vy += 0.07; p.vx *= 0.985; p.life -= 0.012;
+        p.x += p.vx; p.y += p.vy; p.vy += 0.07; p.vx *= 0.985; p.life -= 0.013;
         if (p.life <= 0) { extra.splice(i, 1); continue; }
-        ctx.globalAlpha = Math.max(p.life, 0); ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, 6.2832); ctx.fillStyle = p.tone; ctx.fill();
+        ctx.globalAlpha = Math.max(p.life, 0);
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832);
+        ctx.fillStyle = p.tone; ctx.fill();
         ctx.globalAlpha = 1;
       }
     }
-    requestAnimationFrame(tick);
+    start();
   }
-  tick();
+  function start() { if (!rafId && !document.hidden) rafId = requestAnimationFrame(loop); }
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) { cancelAnimationFrame(rafId); rafId = 0; } else start();
+  });
+  start();
 })();
 </script>
 </body>
